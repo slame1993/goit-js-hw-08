@@ -7,16 +7,18 @@ const messageTextarea = form.querySelector('[name="message"]');
 const storageKey = 'feedback-form-state';
 
 const saveFormState = throttle(() => {
-  const formData = {
-    email: emailInput.value,
-    message: messageTextarea.value,
-  };
-  localStorage.setItem(storageKey, JSON.stringify(formData));
+  if (emailInput && messageTextarea) {
+    const formData = {
+      email: emailInput.value,
+      message: messageTextarea.value,
+    };
+    localStorage.setItem(storageKey, JSON.stringify(formData));
+  }
 }, 500);
 
 const restoreFormState = () => {
   const storedData = localStorage.getItem(storageKey);
-  if (storedData) {
+  if (storedData && emailInput && messageTextarea) {
     const formData = JSON.parse(storedData);
     emailInput.value = formData.email || '';
     messageTextarea.value = formData.message || '';
@@ -30,12 +32,17 @@ form.addEventListener('input', saveFormState);
 form.addEventListener('submit', event => {
   event.preventDefault();
 
-  localStorage.removeItem(storageKey);
-  emailInput.value = '';
-  messageTextarea.value = '';
+  if (!emailInput.value || !messageTextarea.value) {
+    window.alert('Будь ласка, заповніть усі поля форми.');
+    return;
+  }
 
   console.log({
     email: emailInput.value,
     message: messageTextarea.value,
   });
+
+  localStorage.removeItem(storageKey);
+  emailInput.value = '';
+  messageTextarea.value = '';
 });
